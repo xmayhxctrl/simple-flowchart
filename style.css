@@ -42,10 +42,11 @@ body {
     border: 1px solid #ccc;
     position: relative;
     background-size: 25px 25px;
-    background-image: linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px);
+    background-image: linear-gradient(to right, #ccc 1px, transparent 1px), 
+                      linear-gradient(to bottom, #ccc 1px, transparent 1px);
+    cursor: crosshair;
 }
 
-/* Формы для блоков */
 .block {
     padding: 20px;
     text-align: center;
@@ -53,35 +54,34 @@ body {
     cursor: move;
 }
 
-#start, #end {
+.start, .end {
     background-color: orange;
     border-radius: 50%;
     width: 120px;
     height: 60px;
 }
 
-#process {
+.process {
     background-color: white;
-    border: 2px solid #000;
+    border: 2px solid black;
     width: 120px;
     height: 60px;
 }
 
-#decision {
+.decision {
     background-color: pink;
     width: 120px;
     height: 60px;
     transform: rotate(45deg);
 }
 
-#io {
+.io {
     background-color: lightblue;
     width: 140px;
     height: 60px;
     transform: skewX(-20deg);
 }
 
-/* Линии */
 .line {
     position: absolute;
     border: 2px solid black;
