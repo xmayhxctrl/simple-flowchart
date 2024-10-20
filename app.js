@@ -1,61 +1,62 @@
 const canvas = document.getElementById('canvas');
 const elements = document.querySelectorAll('.element');
 let draggedElement = null;
-let currentLine = null;
-let connections = [];
-let scissorsMode = false;
-let isDrawingLine = false;
-let undoStack = [];
 
+// Создание элемента на холсте
 function createBlock(type, x, y) {
     const block = document.createElement('div');
     block.classList.add('block', type);
     block.style.left = `${x}px`;
     block.style.top = `${y}px`;
-    block.draggable = true;
+    block.draggable = true;  // Элемент можно будет перетаскивать
 
     const label = document.createElement('div');
     label.textContent = getLabel(type);
     label.style.fontWeight = 'bold';
-    label.style.marginBottom = '10px';
     block.appendChild(label);
 
     if (type !== 'start' && type !== 'end') {
         const input = document.createElement('textarea');
         input.classList.add('block-input');
         input.placeholder = "Введите текст...";
-        input.style.resize = 'none';
-        input.style.width = '100%';
         block.appendChild(input);
     }
 
-    canvas.appendChild(block);
-
     block.addEventListener('mousedown', (e) => {
-        if (isDrawingLine && currentLine) {
-            const x1 = parseInt(currentLine.style.left, 10);
-            const y1 = parseInt(currentLine.style.top, 10);
-            const x2 = e.clientX;
-            const y2 = e.clientY;
-            createLine(x1, y1, x2, y2);
-            currentLine = null;
-            isDrawingLine = false;
+        block.style.position = 'absolute';
+        moveAt(e.pageX, e.pageY);
+        document.body.append(block);
+    
+        function moveAt(pageX, pageY) {
+            block.style.left = pageX - block.offsetWidth / 2 + 'px';
+            block.style.top = pageY - block.offsetHeight / 2 + 'px';
         }
+
+        function onMouseMove(e) {
+            moveAt(e.pageX, e.pageY);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+
+        block.onmouseup = function() {
+            document.removeEventListener('mousemove', onMouseMove);
+            block.onmouseup = null;
+        };
     });
 
-    block.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', 'drag');
-        draggedElement = block;
-    });
-
-    block.addEventListener('dragend', (e) => {
-        draggedElement = null;
-        saveState();
-    });
+    canvas.appendChild(block);
 }
 
+// Присвоение каждому элементу возможность перетаскивания
+elements.forEach(element => {
+    element.addEventListener('dragstart', (e) => {
+        draggedElement = e.target;
+    });
+});
+
+// Перетаскивание элемента на холст
 canvas.addEventListener('dragover', (e) => {
-    e.preventDefault();
+    e.preventDefault();  // Разрешить сброс
 });
 
 canvas.addEventListener('drop', (e) => {
@@ -67,6 +68,7 @@ canvas.addEventListener('drop', (e) => {
     draggedElement = null;
 });
 
+// Функция для получения метки
 function getLabel(type) {
     switch (type) {
         case 'start':
@@ -83,6 +85,7 @@ function getLabel(type) {
             return '';
     }
 }
+
 
 function createLine(x1, y1, x2, y2) {
     const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
