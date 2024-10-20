@@ -4,6 +4,7 @@ let draggedElement = null;
 let currentLine = null;
 let connections = [];
 let scissorsMode = false;
+let isDrawingLine = false;
 let undoStack = [];
 
 function createBlock(type, x, y) {
@@ -12,7 +13,35 @@ function createBlock(type, x, y) {
     block.style.left = `${x}px`;
     block.style.top = `${y}px`;
     block.draggable = true;
+
+    const label = document.createElement('div');
+    label.textContent = getLabel(type);
+    label.style.fontWeight = 'bold';
+    label.style.marginBottom = '10px';
+    block.appendChild(label);
+
+    if (type !== 'start' && type !== 'end') {
+        const input = document.createElement('textarea');
+        input.classList.add('block-input');
+        input.placeholder = "Введите текст...";
+        input.style.resize = 'none';
+        input.style.width = '100%';
+        block.appendChild(input);
+    }
+
     canvas.appendChild(block);
+
+    block.addEventListener('mousedown', (e) => {
+        if (isDrawingLine && currentLine) {
+            const x1 = parseInt(currentLine.style.left, 10);
+            const y1 = parseInt(currentLine.style.top, 10);
+            const x2 = e.clientX;
+            const y2 = e.clientY;
+            createLine(x1, y1, x2, y2);
+            currentLine = null;
+            isDrawingLine = false;
+        }
+    });
 
     block.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', 'drag');
@@ -22,17 +51,6 @@ function createBlock(type, x, y) {
     block.addEventListener('dragend', (e) => {
         draggedElement = null;
         saveState();
-    });
-
-    block.addEventListener('mousedown', (e) => {
-        if (currentLine) {
-            const x1 = parseInt(currentLine.style.left, 10);
-            const y1 = parseInt(currentLine.style.top, 10);
-            const x2 = e.clientX;
-            const y2 = e.clientY;
-            createLine(x1, y1, x2, y2);
-            currentLine = null;
-        }
     });
 }
 
@@ -49,6 +67,23 @@ canvas.addEventListener('drop', (e) => {
     draggedElement = null;
 });
 
+function getLabel(type) {
+    switch (type) {
+        case 'start':
+            return 'Начало';
+        case 'process':
+            return 'Действие';
+        case 'decision':
+            return 'Условие';
+        case 'io':
+            return 'Ввод/Вывод';
+        case 'end':
+            return 'Конец';
+        default:
+            return '';
+    }
+}
+
 function createLine(x1, y1, x2, y2) {
     const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
     const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
@@ -62,14 +97,17 @@ function createLine(x1, y1, x2, y2) {
     connections.push(line);
 }
 
-canvas.addEventListener('click', (e) => {
-    if (!currentLine) {
-        currentLine = document.createElement('div');
-        currentLine.classList.add('line');
-        currentLine.style.left = `${e.clientX}px`;
-        currentLine.style.top = `${e.clientY}px`;
-        canvas.appendChild(currentLine);
-    }
+document.getElementById('create-line-btn').addEventListener('click', () => {
+    isDrawingLine = true;
+    canvas.addEventListener('click', (e) => {
+        if (isDrawingLine) {
+            currentLine = document.createElement('div');
+            currentLine.classList.add('line');
+            currentLine.style.left = `${e.clientX}px`;
+            currentLine.style.top = `${e.clientY}px`;
+            canvas.appendChild(currentLine);
+        }
+    });
 });
 
 document.getElementById('scissors-btn').addEventListener('click', () => {
