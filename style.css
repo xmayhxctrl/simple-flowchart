@@ -19,8 +19,8 @@ body {
     cursor: grab;
 }
 
-#save-btn {
-    margin-left: auto;
+#save-btn, #scissors-btn, #undo-btn {
+    margin-left: 10px;
     padding: 10px;
     background-color: #28a745;
     color: white;
@@ -28,35 +28,62 @@ body {
     cursor: pointer;
 }
 
+#scissors-btn {
+    background-color: #ff6347;
+}
+
+#undo-btn {
+    background-color: #ffa500;
+}
+
 .canvas {
     width: 100%;
     height: 80vh;
     border: 1px solid #ccc;
     position: relative;
+    background-size: 25px 25px;
+    background-image: linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px);
 }
 
+/* Формы для блоков */
 .block {
-    width: 100px;
     padding: 20px;
     text-align: center;
-    background-color: #fff;
-    border: 2px solid #000;
     position: absolute;
     cursor: move;
 }
 
-#start {
-    background-color: lightgreen;
-}
-
-#end {
-    background-color: lightcoral;
+#start, #end {
+    background-color: orange;
+    border-radius: 50%;
+    width: 120px;
+    height: 60px;
 }
 
 #process {
-    background-color: lightblue;
+    background-color: white;
+    border: 2px solid #000;
+    width: 120px;
+    height: 60px;
 }
 
 #decision {
-    background-color: lightyellow;
+    background-color: pink;
+    width: 120px;
+    height: 60px;
+    transform: rotate(45deg);
+}
+
+#io {
+    background-color: lightblue;
+    width: 140px;
+    height: 60px;
+    transform: skewX(-20deg);
+}
+
+/* Линии */
+.line {
+    position: absolute;
+    border: 2px solid black;
+    transform-origin: 0 0;
 }
