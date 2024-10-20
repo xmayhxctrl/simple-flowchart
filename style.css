@@ -1,89 +1,105 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+const canvas = document.getElementById('canvas');
+const elements = document.querySelectorAll('.element');
+let draggedElement = null;
+let currentLine = null;
+let connections = [];
+let scissorsMode = false;
+let isDrawingLine = false;
+let undoStack = [];
+
+function createBlock(type, x, y) {
+    const block = document.createElement('div');
+    block.classList.add('block', type);
+    block.style.left = `${x}px`;
+    block.style.top = `${y}px`;
+    block.draggable = true;
+    canvas.appendChild(block);
+
+    block.addEventListener('mousedown', (e) => {
+        if (isDrawingLine && currentLine) {
+            const x1 = parseInt(currentLine.style.left, 10);
+            const y1 = parseInt(currentLine.style.top, 10);
+            const x2 = e.clientX;
+            const y2 = e.clientY;
+            createLine(x1, y1, x2, y2);
+            currentLine = null;
+            isDrawingLine = false;
+        }
+    });
+
+    block.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', 'drag');
+        draggedElement = block;
+    });
+
+    block.addEventListener('dragend', (e) => {
+        draggedElement = null;
+        saveState();
+    });
 }
 
-.toolbar {
-    display: flex;
-    padding: 10px;
-    background-color: #f4f4f4;
-    border-bottom: 1px solid #ccc;
+canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+});
+
+canvas.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const type = draggedElement.getAttribute('data-type');
+    const x = e.clientX - 60;
+    const y = e.clientY - 30;
+    createBlock(type, x, y);
+    draggedElement = null;
+});
+
+function createLine(x1, y1, x2, y2) {
+    const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    const line = document.createElement('div');
+    line.classList.add('line');
+    line.style.width = `${length}px`;
+    line.style.transform = `rotate(${angle}deg)`;
+    line.style.left = `${x1}px`;
+    line.style.top = `${y1}px`;
+    canvas.appendChild(line);
+    connections.push(line);
 }
 
-.element {
-    margin-right: 10px;
-    padding: 10px;
-    background-color: #ddd;
-    border: 1px solid #aaa;
-    cursor: grab;
-}
+document.getElementById('create-line-btn').addEventListener('click', () => {
+    isDrawingLine = true;
+    canvas.addEventListener('click', (e) => {
+        if (isDrawingLine) {
+            currentLine = document.createElement('div');
+            currentLine.classList.add('line');
+            currentLine.style.left = `${e.clientX}px`;
+            currentLine.style.top = `${e.clientY}px`;
+            canvas.appendChild(currentLine);
+        }
+    });
+});
 
-#save-btn, #scissors-btn, #undo-btn, #create-line-btn {
-    margin-left: 10px;
-    padding: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
+document.getElementById('scissors-btn').addEventListener('click', () => {
+    scissorsMode = !scissorsMode;
+    document.getElementById('scissors-btn').textContent = scissorsMode ? 'Режим ножниц Вкл.' : 'Режим ножниц Выкл.';
+});
 
-#scissors-btn {
-    background-color: #ff6347;
-}
+document.getElementById('undo-btn').addEventListener('click', () => {
+    if (undoStack.length > 0) {
+        canvas.innerHTML = '';
+        const lastState = undoStack.pop();
+        canvas.appendChild(lastState.cloneNode(true));
+    }
+});
 
-#undo-btn {
-    background-color: #ffa500;
-}
+document.getElementById('save-btn').addEventListener('click', () => {
+    html2canvas(canvas).then(canvasImage => {
+        const link = document.createElement('a');
+        link.download = 'block-shema.jpeg';
+        link.href = canvasImage.toDataURL('image/jpeg');
+        link.click();
+    });
+});
 
-#canvas {
-    width: 100%;
-    height: 80vh;
-    border: 1px solid #ccc;
-    position: relative;
-    background-size: 25px 25px;
-    background-image: linear-gradient(to right, #ccc 1px, transparent 1px), 
-                      linear-gradient(to bottom, #ccc 1px, transparent 1px);
-    cursor: crosshair;
-}
-
-.block {
-    padding: 20px;
-    text-align: center;
-    position: absolute;
-    cursor: move;
-}
-
-.start, .end {
-    background-color: orange;
-    border-radius: 50%;
-    width: 120px;
-    height: 60px;
-}
-
-.process {
-    background-color: white;
-    border: 2px solid black;
-    width: 120px;
-    height: 60px;
-}
-
-.decision {
-    background-color: pink;
-    width: 120px;
-    height: 60px;
-    transform: rotate(45deg);
-}
-
-.io {
-    background-color: lightblue;
-    width: 140px;
-    height: 60px;
-    transform: skewX(-20deg);
-}
-
-.line {
-    position: absolute;
-    border: 2px solid black;
-    transform-origin: 0 0;
+function saveState() {
+    const canvasClone = canvas.cloneNode(true);
+    undoStack.push(canvasClone);
 }
