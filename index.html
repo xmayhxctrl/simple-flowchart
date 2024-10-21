@@ -1,27 +1,21 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание блок-схем</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Block Scheme Creator</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="toolbar">
-        <button class="element" data-type="start">Начало</button>
-        <button class="element" data-type="process">Действие</button>
-        <button class="element" data-type="decision">Условие</button>
-        <button class="element" data-type="io">Ввод/Вывод</button>
-        <button class="element" data-type="end">Конец</button>
-        <button id="create-line-btn">Линия</button>
-        <button id="save-btn">Сохранить в JPEG</button>
-        <button id="scissors-btn">Ножницы</button>
-        <button id="undo-btn">Отменить</button>
-    </div>
+  <div class="toolbar">
+    <button class="add-element" data-type="start">Start/End</button>
+    <button class="add-element" data-type="condition">Condition</button>
+    <button class="add-element" data-type="input-output">Input/Output</button>
+    <button class="add-element" data-type="action">Action</button>
+    <button id="save">Save as JPEG</button>
+  </div>
+  <div class="canvas" id="canvas"></div>
 
-    <div class="canvas" id="canvas"></div>
-
-    <script src="app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
