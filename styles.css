@@ -55,3 +55,36 @@ body {
     background-size: 25px 25px;
     z-index: 0;
 }
+/* Общие стили для блоков */
+.block {
+    padding: 15px 30px;
+    text-align: center;
+    position: absolute;
+    cursor: move;
+    z-index: 1;
+    user-select: none;
+}
+
+/* Начало и конец (овалы) */
+.start, .end {
+    background-color: orange;
+    border-radius: 50%;
+}
+
+/* Действия (прямоугольники) */
+.action {
+    background-color: white;
+    border: 2px solid black;
+}
+
+/* Условия (ромбы) */
+.condition {
+    background-color: #e6e6fa;
+    transform: rotate(45deg);
+}
+
+/* Ввод/Вывод (параллелограммы) */
+.io {
+    background-color: #add8e6;
+    transform: skewX(-20deg);
+}
