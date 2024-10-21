@@ -29,17 +29,23 @@ function createElement(type, text) {
         }, 0);
     });
 
-    workspace.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Разрешаем перетаскивание
-    });
+    // События для перемещения элемента
+    element.addEventListener('mousedown', (e) => {
+        const offsetX = e.clientX - element.getBoundingClientRect().left; // Получаем смещение
+        const offsetY = e.clientY - element.getBoundingClientRect().top;
 
-    workspace.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const x = e.clientX - workspace.getBoundingClientRect().left; // Получаем координаты
-        const y = e.clientY - workspace.getBoundingClientRect().top;
-        draggedElement.style.left = `${x}px`;
-        draggedElement.style.top = `${y}px`;
-        draggedElement.style.transform = 'none'; // Убираем трансформацию при перетаскивании
+        const moveElement = (moveEvent) => {
+            element.style.left = `${moveEvent.clientX - offsetX}px`; // Обновляем положение
+            element.style.top = `${moveEvent.clientY - offsetY}px`;
+        };
+
+        const stopMoving = () => {
+            window.removeEventListener('mousemove', moveElement); // Убираем обработчик
+            window.removeEventListener('mouseup', stopMoving); // Убираем обработчик
+        };
+
+        window.addEventListener('mousemove', moveElement); // Добавляем обработчик
+        window.addEventListener('mouseup', stopMoving); // Добавляем обработчик
     });
 
     // Редактирование текста при двойном клике
